@@ -51,7 +51,8 @@ public:
          1 means visible and unchecked.
          2 means visible and checked.
         */
-        struct Buttons {
+        struct Buttons
+        {
             uint listAllFiles;
             uint showHidden;
             uint showPlaces;
@@ -73,9 +74,9 @@ public:
     };
 #endif // DGL_FILE_BROWSER_DISABLED
 
-    explicit Window(Application& app);
-    explicit Window(Application& app, Window& parent);
-    explicit Window(Application& app, intptr_t parentId);
+    explicit Window(Application &app);
+    explicit Window(Application &app, Window &parent);
+    explicit Window(Application &app, intptr_t parentId);
     virtual ~Window();
 
     void show();
@@ -102,18 +103,66 @@ public:
     void setSize(uint width, uint height);
     void setSize(Size<uint> size);
 
-    const char* getTitle() const noexcept;
-    void setTitle(const char* title);
+    const char *getTitle() const noexcept;
+    void setTitle(const char *title);
 
     void setTransientWinId(uintptr_t winId);
 
-    Application& getApp() const noexcept;
+    Application &getApp() const noexcept;
     intptr_t getWindowId() const noexcept;
 
-    void addIdleCallback(IdleCallback* const callback);
-    void removeIdleCallback(IdleCallback* const callback);
+    void addIdleCallback(IdleCallback *const callback);
+    void removeIdleCallback(IdleCallback *const callback);
 
-protected:
+    //fork-----------------
+    enum CursorStyle
+    {
+	    Default,
+	    Pointer,
+	    Grab,
+	    Grabbing,
+	    Text,
+	    NW_SE_Resize
+    };
+    
+    /**
+       Show the mouse cursor.
+     */
+    void showCursor() noexcept;
+
+    /**
+       Hide the mouse cursor.
+     */
+    void hideCursor() noexcept;
+
+    /**
+       Get the position of the cursor relative to the window's origin.
+     */
+    const Point<int> getCursorPos() const noexcept;
+
+    /**
+       Confine the mouse cursor to a rectangular area in the window. The rectangle is endpoint-inclusive.
+     */
+    void clipCursor(Rectangle<int> rect) const noexcept;
+
+    void clipCursor(Widget* const widget) const noexcept;
+    
+    /**
+       Set the cursor free after calling clipCursor.
+     */
+    void unclipCursor() const noexcept;
+
+    /**
+       Set the position of the cursor in the window.
+     */
+    void setCursorPos(int x, int y) noexcept;
+    void setCursorPos(const Point<int>& pos) noexcept;
+    void setCursorPos(Widget* const widget) noexcept;
+
+    void setCursorStyle(CursorStyle style) noexcept;
+    //---------------------
+
+  protected:
     virtual void onDisplayBefore();
     virtual void onDisplayAfter();
     virtual void onReshape(uint width, uint height);
@@ -123,16 +172,16 @@ protected:
     virtual void fileBrowserSelected(const char* filename);
 #endif
 
-private:
+  private:
     struct PrivateData;
-    PrivateData* const pData;
+    PrivateData *const pData;
     friend class Application;
     friend class Widget;
     friend class StandaloneWindow;
     friend class DISTRHO_NAMESPACE::UIExporter;
 
-    virtual void _addWidget(Widget* const widget);
-    virtual void _removeWidget(Widget* const widget);
+    virtual void _addWidget(Widget *const widget);
+    virtual void _removeWidget(Widget *const widget);
     void _idle();
 
     bool handlePluginKeyboard(const bool press, const uint key);

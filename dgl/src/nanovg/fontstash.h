@@ -900,7 +900,7 @@ int fonsAddFontMem(FONScontext* stash, const char* name, const unsigned char* da
 	font->dataSize = dataSize;
 	font->data = data;
 	font->freeData = (unsigned char)freeData;
-
+	
 	// Init font
 	stash->nscratch = 0;
 	if (!fons__tt_loadFont(stash, &font->font, data, dataSize)) goto error;

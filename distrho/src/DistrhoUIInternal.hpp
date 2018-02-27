@@ -18,6 +18,7 @@
 #define DISTRHO_UI_INTERNAL_HPP_INCLUDED
 
 #include "../DistrhoUI.hpp"
+#include "../IdleThread.hpp"
 
 #ifdef HAVE_DGL
 # include "../../dgl/Application.hpp"
@@ -215,6 +216,8 @@ UI* createUiWrapper(void* const dspPtr, const uintptr_t winId, const char* const
 }
 #endif
 
+#include "DistrhoUI.hpp"
+
 // -----------------------------------------------------------------------
 // UI exporter class
 
@@ -245,11 +248,27 @@ public:
         fData->sendNoteCallbackFunc  = sendNoteCall;
         fData->setSizeCallbackFunc   = setSizeCall;
 
+#if !defined(DISTRHO_PLUGIN_TARGET_DSSI) && !defined(DISTRHO_PLUGIN_TARGET_JACK)
+
+        fIdleThread = new IdleThread(this);
+        fIdleThread->startThread();
+#endif
 #ifdef HAVE_DGL
         // unused
         return; (void)bundlePath;
 #endif
+}
+
+friend class IdleThread;
+
+#if !defined(DISTRHO_PLUGIN_TARGET_DSSI) && !defined(DISTRHO_PLUGIN_TARGET_JACK)
+
+    ~UIExporter() 
+    {
+        fIdleThread->stopThread(-1);
     }
+
+#endif
 
     // -------------------------------------------------------------------
 
@@ -356,16 +375,17 @@ public:
     {
         DISTRHO_SAFE_ASSERT_RETURN(fUI != nullptr, false);
 
-#ifdef HAVE_DGL
+#if defined(HAVE_DGL) 
+#if defined(DISTRHO_PLUGIN_TARGET_DSSI)
         glApp.idle();
 
         if (glWindow.isReady())
             fUI->uiIdle();
-
-        return ! glApp.isQuiting();
+#endif
 #else
         return fUI->isRunning();
 #endif
+        return ! glApp.isQuiting();
     }
 
     void quit()
@@ -375,6 +395,7 @@ public:
         glApp.quit();
 #else
         DISTRHO_SAFE_ASSERT_RETURN(fUI != nullptr,);
+        
         fUI->terminateAndWaitForProcess();
 #endif
     }
@@ -468,6 +489,7 @@ private:
 
     UI* const fUI;
     UI::PrivateData* const fData;
+    IdleThread* fIdleThread;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIExporter)
 };
