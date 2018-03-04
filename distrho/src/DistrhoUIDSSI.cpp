@@ -115,7 +115,7 @@ public:
             if (fHostClosed || ! fUI.idle())
                 break;
 
-            d_msleep(30);
+            d_msleep(16);
         }
     }
 
