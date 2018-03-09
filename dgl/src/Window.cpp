@@ -271,6 +271,8 @@ struct Window::PrivateData
 		XMapWindow(xDisplay, xClipCursorWindow);
 		//-------------
 #endif
+		fMustSaveSize = false;
+
 		puglEnterContext(fView);
 
 		fApp.pData->windows.push_back(fSelf);
@@ -1002,6 +1004,7 @@ struct Window::PrivateData
 
 	//fork---------
 	bool fCursorIsClipped;
+	bool fMustSaveSize;
 	//-------------
 
 	struct Modal
@@ -1354,6 +1357,15 @@ void Window::onClose()
 }
 
 //fork----------
+void Window::saveSizeAtExit(bool yesno)
+{
+	pData->fMustSaveSize = yesno;
+}
+
+bool Window::mustSaveSize()
+{
+	return pData->fMustSaveSize;
+}
 
 void Window::setCursorStyle(CursorStyle style) noexcept
 {

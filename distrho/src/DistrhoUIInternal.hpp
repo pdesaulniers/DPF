@@ -19,6 +19,7 @@
 
 #include "../DistrhoUI.hpp"
 #include "../IdleThread.hpp"
+#include <string>
 
 #ifdef HAVE_DGL
 # include "../../dgl/Application.hpp"
@@ -26,6 +27,10 @@
 using DGL_NAMESPACE::Application;
 using DGL_NAMESPACE::IdleCallback;
 using DGL_NAMESPACE::Window;
+#endif
+
+#if defined(DISTRHO_OS_WINDOWS)
+    #include "windows.h"
 #endif
 
 START_NAMESPACE_DISTRHO
@@ -265,6 +270,28 @@ friend class IdleThread;
 
     ~UIExporter() 
     {
+        if(glWindow.mustSaveSize())
+	    {
+            FILE* file;
+
+#if defined(DISTRHO_OS_WINDOWS)
+            CHAR tempPath[MAX_PATH + 1];
+
+            GetTempPath(MAX_PATH + 1, tempPath);
+            std::string path = std::string(tempPath) + "spoonie-waveshaper.tmp";
+            file = fopen(path.c_str(), "w");
+#else
+            file = fopen("/tmp/spoonie-waveshaper.tmp", "w");
+#endif
+
+    	    if(file == NULL)
+    	        return;
+
+            fprintf(file, "%d %d", getWidth(), getHeight());
+
+            fclose(file);
+        }
+            
         fIdleThread->stopThread(-1);
     }
 

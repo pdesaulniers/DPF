@@ -115,6 +115,9 @@ public:
     void removeIdleCallback(IdleCallback *const callback);
 
     //fork-----------------
+    void saveSizeAtExit(bool yesno);
+    bool mustSaveSize();
+    
     enum CursorStyle
     {
 	    Default,
