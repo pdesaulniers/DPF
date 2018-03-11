@@ -273,15 +273,16 @@ friend class IdleThread;
         if(glWindow.mustSaveSize())
 	    {
             FILE* file;
+            std::string tmpFileName = "wolf-shaper.tmp";
 
 #if defined(DISTRHO_OS_WINDOWS)
             CHAR tempPath[MAX_PATH + 1];
 
             GetTempPath(MAX_PATH + 1, tempPath);
-            std::string path = std::string(tempPath) + "spoonie-waveshaper.tmp";
+            std::string path = std::string(tempPath) + tmpFileName;
             file = fopen(path.c_str(), "w");
 #else
-            file = fopen("/tmp/spoonie-waveshaper.tmp", "w");
+            file = fopen(("/tmp/" + tmpFileName).c_str(), "w");
 #endif
 
     	    if(file == NULL)
