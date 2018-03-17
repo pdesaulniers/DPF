@@ -121,7 +121,7 @@ private:                                 \
 
 /* Define namespace */
 #ifndef DISTRHO_NAMESPACE
-# define DISTRHO_NAMESPACE SPOONIE_DISTRHO
+# define DISTRHO_NAMESPACE WOLF_DISTRHO
 #endif
 #define START_NAMESPACE_DISTRHO namespace DISTRHO_NAMESPACE {
 #define END_NAMESPACE_DISTRHO }
