@@ -8,8 +8,8 @@ include Makefile.mk
 
 # --------------------------------------------------------------
 
-BUILD_C_FLAGS   += $(DGL_FLAGS) -I. -Isrc
-BUILD_CXX_FLAGS += $(DGL_FLAGS) -I. -Isrc
+BUILD_C_FLAGS   += $(DGL_FLAGS) -I. -Isrc -DDGL_NAMESPACE=$(DGL_NAMESPACE)
+BUILD_CXX_FLAGS += $(DGL_FLAGS) -I. -Isrc -DDGL_NAMESPACE=$(DGL_NAMESPACE)
 LINK_FLAGS      += $(DGL_LIBS)
 
 ifneq ($(MACOS_OLD),true)
