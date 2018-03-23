@@ -1381,6 +1381,8 @@ void Window::setCursorStyle(CursorStyle style) noexcept
 #else
 	Cursor cursor = XcursorLibraryLoadCursor(pData->xDisplay, style == CursorStyle::Grab ? "grab" : "default");
 	XDefineCursor(pData->xDisplay, pData->xWindow, cursor);
+
+	XSync(pData->xDisplay, False);
 #endif
 }
 
@@ -1394,6 +1396,8 @@ void Window::showCursor() noexcept
 
 #else
 	XUndefineCursor(pData->xDisplay, pData->xWindow);
+
+	XSync(pData->xDisplay, False);
 #endif
 }
 
@@ -1407,6 +1411,8 @@ void Window::hideCursor() noexcept
 
 #else
 	XDefineCursor(pData->xDisplay, pData->xWindow, pData->invisibleCursor);
+
+	XSync(pData->xDisplay, False);
 #endif
 }
 
@@ -1459,8 +1465,8 @@ void Window::setCursorPos(int x, int y) noexcept
 
 #else
 	XWarpPointer(pData->xDisplay, None, pData->xWindow, 0, 0, 0, 0, x, y);
-	XSync(pData->xDisplay, False); //might not be necessary
 
+	XSync(pData->xDisplay, False);
 #endif
 }
 
@@ -1494,8 +1500,10 @@ void Window::clipCursor(Rectangle<int> rect) const noexcept
 
 #else
 	XMoveResizeWindow(pData->xDisplay, pData->xClipCursorWindow, rect.getX(), rect.getY(), rect.getWidth() + 1, rect.getHeight() + 1);
+	XSync(pData->xDisplay, False);
 
 	XGrabPointer(pData->xDisplay, pData->xWindow, True, 0, GrabModeAsync, GrabModeAsync, pData->xClipCursorWindow, None, CurrentTime);
+	XSync(pData->xDisplay, False);
 #endif	
 }
 
@@ -1520,7 +1528,8 @@ void Window::unclipCursor() const noexcept
 
 #else
 	XUngrabPointer(pData->xDisplay, CurrentTime);
-
+	
+	XSync(pData->xDisplay, False);
 #endif	
 }
 
