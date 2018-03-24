@@ -1466,7 +1466,7 @@ void Window::setCursorPos(int x, int y) noexcept
 #else
 	XWarpPointer(pData->xDisplay, None, pData->xWindow, 0, 0, 0, 0, x, y);
 
-	XSync(pData->xDisplay, False);
+	XSync(pData->xDisplay, True);
 #endif
 }
 
