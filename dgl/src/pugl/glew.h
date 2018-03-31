@@ -1,5 +1,5 @@
 /*
-  Copyright 2014 David Robillard <http://drobilla.net>
+  Copyright 2016 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -14,28 +14,19 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#ifndef PUGL_EVENT_H_INCLUDED
-#define PUGL_EVENT_H_INCLUDED
+/**
+   @file gl.h Portable header wrapper for glew.h.
 
-#ifdef __cplusplus
-extern "C" {
+   Unfortunately, GL includes vary across platforms so this header allows for
+   pure portable programs.
+*/
+
+#ifdef __APPLE__
+#    include "OpenGL/glew.h"
 #else
-#    include <stdbool.h>
+#    ifdef _WIN32
+#        include <windows.h>  /* Broken Windows GL headers require this */
+#    endif
+#    include "GL/glew.h"
 #endif
 
-#include "pugl/common.h"
-
-/**
-   @addtogroup pugl
-   @{
-*/
-
-/**
-   @}
-*/
-
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
-
-#endif  /* PUGL_EVENT_H_INCLUDED */
