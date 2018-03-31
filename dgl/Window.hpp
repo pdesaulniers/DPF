@@ -124,7 +124,8 @@ public:
 	    Pointer,
 	    Grab,
 	    Grabbing,
-	    Text,
+      Text,
+      UpDown,
 	    NW_SE_Resize
     };
     

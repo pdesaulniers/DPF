@@ -1379,7 +1379,34 @@ void Window::setCursorStyle(CursorStyle style) noexcept
 	[[NSCursor openHandCursor] set];
 
 #else
-	Cursor cursor = XcursorLibraryLoadCursor(pData->xDisplay, style == CursorStyle::Grab ? "grab" : "default");
+	String cursorName;
+
+	switch(style)
+	{
+		case CursorStyle::Default:
+			cursorName = "default";
+			break;
+		case CursorStyle::Grab:
+			cursorName = "grab";
+			break;
+		case CursorStyle::Grabbing:
+			cursorName = "grabbing";
+			break;
+		case CursorStyle::Pointer:
+			cursorName = "pointer";
+			break;
+		case CursorStyle::NW_SE_Resize:
+			cursorName = "bottom_right_corner";
+			break;
+		case CursorStyle::UpDown:
+			cursorName = "sb_v_double_arrow";
+			break;
+		default:
+			cursorName = "default";
+			break;
+	}
+		
+	Cursor cursor = XcursorLibraryLoadCursor(pData->xDisplay, cursorName);
 	XDefineCursor(pData->xDisplay, pData->xWindow, cursor);
 
 	XSync(pData->xDisplay, False);
