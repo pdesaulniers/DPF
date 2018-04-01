@@ -1076,6 +1076,9 @@ struct Window::PrivateData
 		case PUGL_BUTTON_RELEASE:
 			onMouseCallback(view, event->button.button, false, event->button.x, event->button.y);
 			break;
+		case PUGL_SCROLL:
+			onScrollCallback(view, event->scroll.x, event->scroll.y, event->scroll.dx, event->scroll.dy);
+			break;
 		default:
 			break;
 		}
