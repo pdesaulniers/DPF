@@ -18,14 +18,16 @@
    @file pugl_win.cpp Windows/WGL Pugl Implementation.
 */
 #include <winsock2.h>
+
 #include <windows.h>
 #include <windowsx.h>
 #include <GL/gl.h>
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <wctype.h>
+
+#include <ctime>
+#include <cstdio>
+#include <cstdlib>
 
 #include "pugl/pugl_internal.h"
 
@@ -49,6 +51,8 @@
 #endif
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
+
+HINSTANCE hInstance = NULL;
 
 struct PuglInternalsImpl {
 	HWND     hwnd;
@@ -112,38 +116,45 @@ puglLeaveContext(PuglView* view, bool flush)
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
-	static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
-
-	PuglInternals* impl = view->impl;
+		PuglInternals* impl = view->impl;
 
 	if (!title) {
 		title = "Window";
 	}
 
-	WNDCLASSEX wc;
-	memset(&wc, 0, sizeof(wc));
-	wc.cbSize        = sizeof(wc);
-	wc.style         = CS_OWNDC;
-	wc.lpfnWndProc   = wndProc;
-	wc.hInstance     = GetModuleHandle(NULL);
-	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION); // TODO: user-specified icon
-	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszClassName = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
-	if (!RegisterClassEx(&wc)) {
+	// FIXME: This is nasty, and pugl should not have static anything.
+	// Should class be a parameter?  Does this make sense on other platforms?
+	static int wc_count = 0;
+	char classNameBuf[256];
+	std::srand((std::time(NULL)));
+	_snprintf(classNameBuf, sizeof(classNameBuf), "%s_%d-%d", title, std::rand(), ++wc_count);
+	classNameBuf[sizeof(classNameBuf)-1] = '\0';
+
+	impl->wc.style         = CS_OWNDC;
+	impl->wc.lpfnWndProc   = wndProc;
+	impl->wc.cbClsExtra    = 0;
+	impl->wc.cbWndExtra    = 0;
+	impl->wc.hInstance     = hInstance;
+	impl->wc.hIcon         = LoadIcon(hInstance, IDI_APPLICATION);
+	impl->wc.hCursor       = LoadCursor(hInstance, IDC_ARROW);
+	impl->wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	impl->wc.lpszMenuName  = NULL;
+	impl->wc.lpszClassName = strdup(classNameBuf);
+
+	if (!RegisterClass(&impl->wc)) {
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
-		return NULL;
+		return 1;
 	}
 
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
 	if (view->resizable) {
 		winFlags |= WS_SIZEBOX;
-		if (view->min_width || view->min_height) {
+		if (view->min_width > 0 && view->min_height > 0) {
 			// Adjust the minimum window size to accomodate requested view size
 			RECT mr = { 0, 0, view->min_width, view->min_height };
-			AdjustWindowRectEx(&mr, winFlags, FALSE, WS_EX_TOPMOST);
+			AdjustWindowRectEx(&mr, view->parent ? WS_CHILD : winFlags, FALSE, WS_EX_TOPMOST);
 			view->min_width  = mr.right - mr.left;
 			view->min_height = mr.bottom - mr.top;
 		}
@@ -151,27 +162,24 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	// Adjust the window size to accomodate requested view size
 	RECT wr = { 0, 0, view->width, view->height };
-	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
+	AdjustWindowRectEx(&wr, view->parent ? WS_CHILD : winFlags, FALSE, WS_EX_TOPMOST);
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
-		wc.lpszClassName, title,
-		(view->parent ? WS_CHILD : winFlags),
+		classNameBuf, title,
+		view->parent ? (WS_CHILD | WS_VISIBLE) : winFlags,
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
-		(HWND)view->parent, NULL, NULL, NULL);
+		(HWND)view->parent, NULL, hInstance, NULL);
 
 	if (!impl->hwnd) {
+		UnregisterClass(impl->wc.lpszClassName, NULL);
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
 		return 1;
 	}
 
-#ifdef _WIN64
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
-#else
-	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
-#endif
 
 	impl->hdc = GetDC(impl->hwnd);
 
@@ -190,17 +198,16 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	impl->hglrc = wglCreateContext(impl->hdc);
 	if (!impl->hglrc) {
-		ReleaseDC(impl->hwnd, impl->hdc);
-		DestroyWindow(impl->hwnd);
-		UnregisterClass(impl->wc.lpszClassName, NULL);
+		ReleaseDC (impl->hwnd, impl->hdc);
+		DestroyWindow (impl->hwnd);
+		UnregisterClass (impl->wc.lpszClassName, NULL);
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
-		return NULL;
+		return 1;
 	}
-	wglMakeCurrent(impl->hdc, impl->hglrc);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 void
