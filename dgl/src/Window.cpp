@@ -208,9 +208,10 @@ struct Window::PrivateData
 		}
 
 		puglInitContextType(fView, PUGL_GL);
-		puglInitResizable(fView, fResizable);
+		puglInitResizable(fView, true);
 		puglInitWindowSize(fView, static_cast<int>(fWidth), static_cast<int>(fHeight));
 		puglSetHandle(fView, this);
+		puglInitWindowMinSize(fView, 616, 651);
 		puglSetEventFunc(fView, onEventCallback);
 		/*
 #ifndef DGL_FILE_BROWSER_DISABLED

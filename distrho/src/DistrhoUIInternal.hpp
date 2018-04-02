@@ -163,7 +163,7 @@ public:
         DISTRHO_SAFE_ASSERT_RETURN(fUI != nullptr,);
 
         // set window size
-        setResizable(false);
+        setResizable(true);
         setSize(fUI->getWidth(), fUI->getHeight());
     }
 
