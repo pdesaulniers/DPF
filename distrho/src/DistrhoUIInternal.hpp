@@ -19,6 +19,7 @@
 
 #include "../DistrhoUI.hpp"
 #include "../IdleThread.hpp"
+
 #include <string>
 
 #ifdef HAVE_DGL
@@ -163,7 +164,11 @@ public:
         DISTRHO_SAFE_ASSERT_RETURN(fUI != nullptr,);
 
         // set window size
+#if defined(DISTRHO_PLUGIN_TARGET_VST)
+        setResizable(false);
+#else
         setResizable(true);
+#endif
         setSize(fUI->getWidth(), fUI->getHeight());
     }
 
@@ -187,6 +192,9 @@ protected:
     void onReshape(uint width, uint height) override
     {
         DISTRHO_SAFE_ASSERT_RETURN(fUI != nullptr,);
+
+        width = std::max(width, (uint)616);
+        height = std::max(height, (uint)651);
 
         fUI->uiReshape(width, height);
         fIsReady = true;

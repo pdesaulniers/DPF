@@ -156,7 +156,11 @@ struct Window::PrivateData
 		  fView(puglInit(NULL, NULL)),
 		  fFirstInit(true),
 		  fVisible(parentId != 0),
-		  fResizable(parentId == 0),
+#if defined(DISTRHO_PLUGIN_TARGET_VST)
+          fResizable(false),
+#else
+          fResizable(true),
+#endif
 		  fUsingEmbed(parentId != 0),
 		  fWidth(1),
 		  fHeight(1),
@@ -208,7 +212,7 @@ struct Window::PrivateData
 		}
 
 		puglInitContextType(fView, PUGL_GL);
-		puglInitResizable(fView, true);
+		puglInitResizable(fView, fResizable);
 		puglInitWindowSize(fView, static_cast<int>(fWidth), static_cast<int>(fHeight));
 		puglSetHandle(fView, this);
 		puglInitWindowMinSize(fView, 616, 651);
