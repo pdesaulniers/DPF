@@ -139,6 +139,7 @@ void lv2_generate_ttl(const char* const basename)
 #  endif
         manifestString += "\n";
 #  if DISTRHO_PLUGIN_HAS_EMBED_UI
+        manifestString += "    lv2:optionalFeature ui:noUserResize ,\n";
         manifestString += "                        ui:resize ,\n";
         manifestString += "                        ui:touch ;\n";
         manifestString += "\n";
@@ -604,6 +605,7 @@ void lv2_generate_ttl(const char* const basename)
 #  endif
         uiString += "\n";
 #  if DISTRHO_PLUGIN_HAS_EMBED_UI
+        uiString += "    lv2:optionalFeature ui:noUserResize ,\n";
         uiString += "                        ui:resize ,\n";
         uiString += "                        ui:touch ;\n";
         uiString += "\n";

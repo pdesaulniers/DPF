@@ -156,11 +156,7 @@ struct Window::PrivateData
 		  fView(puglInit(NULL, NULL)),
 		  fFirstInit(true),
 		  fVisible(parentId != 0),
-#if defined(DISTRHO_PLUGIN_TARGET_VST)
-          fResizable(false),
-#else
-          fResizable(true),
-#endif
+		  fResizable(parentId == 0),
 		  fUsingEmbed(parentId != 0),
 		  fWidth(1),
 		  fHeight(1),
@@ -215,7 +211,6 @@ struct Window::PrivateData
 		puglInitResizable(fView, fResizable);
 		puglInitWindowSize(fView, static_cast<int>(fWidth), static_cast<int>(fHeight));
 		puglSetHandle(fView, this);
-		puglInitWindowMinSize(fView, 616, 651);
 		puglSetEventFunc(fView, onEventCallback);
 		/*
 #ifndef DGL_FILE_BROWSER_DISABLED
