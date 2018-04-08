@@ -625,6 +625,7 @@ puglProcessEvents(PuglView* view)
 	PuglEvent expose_event = { 0 };
 	PuglEvent config_event = { 0 };
 	XEvent    xevent;
+
 	while (XPending(view->impl->display) > 0) {
 		XNextEvent(view->impl->display, &xevent);
 
@@ -645,7 +646,8 @@ puglProcessEvents(PuglView* view)
 					view->fileSelectedFunc(view, NULL);
 				}
 			}
-			break;
+
+			return;
 		}
 #endif
 
@@ -708,7 +710,7 @@ puglProcessEvents(PuglView* view)
 		}
 #endif
 #endif
-		puglDispatchEvent(view, (const PuglEvent*)&config_event);
+		//puglDispatchEvent(view, (const PuglEvent*)&config_event);
 	}
 
 	if (view->redisplay) {
@@ -722,7 +724,7 @@ puglProcessEvents(PuglView* view)
 	}
 
 	if (expose_event.type) {
-		puglDispatchEvent(view, (const PuglEvent*)&expose_event);
+			puglDispatchEvent(view, (const PuglEvent*)&expose_event);
 	}
 
 	return PUGL_SUCCESS;
