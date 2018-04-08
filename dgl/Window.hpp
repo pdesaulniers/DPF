@@ -115,6 +115,9 @@ public:
     void removeIdleCallback(IdleCallback *const callback);
 
     //fork-----------------
+    Point<int> getAbsolutePos();
+    void setAbsolutePos(const uint x, const uint y);
+
     void setBorderless(bool borderless);
     void saveSizeAtExit(bool yesno);
     bool mustSaveSize();

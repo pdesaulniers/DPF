@@ -1382,16 +1382,44 @@ void Window::onClose()
 }
 
 //fork----------
+
+Point<int> Window::getAbsolutePos()
+{
+	int posX;
+	int posY;
+	::Window unused;
+
+#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
+	XTranslateCoordinates(pData->xDisplay,
+                      pData->xWindow,         // get position for this window
+                      DefaultRootWindow(pData->xDisplay),
+                      0, 0,
+                      &posX,
+                      &posY,
+					  &unused);
+						
+	return Point<int>(posX, posY);
+#endif
+
+}
+
+void Window::setAbsolutePos(const uint x, const uint y)
+{
+#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
+	//https://stackoverflow.com/questions/41622735/hide-window-from-linux-taskbar
+#endif
+}
+
 void Window::setBorderless(bool borderless)
 {
 
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
 		struct MwmHints {
-    	unsigned long flags;
-    	unsigned long functions;
-    	unsigned long decorations;
-    	long input_mode;
-    	unsigned long status;
+    		unsigned long flags;
+    		unsigned long functions;
+    		unsigned long decorations;
+    		long input_mode;
+    		unsigned long status;
 		};
 		enum {
     		MWM_HINTS_FUNCTIONS = (1L << 0),
@@ -1409,7 +1437,7 @@ void Window::setBorderless(bool borderless)
 		struct MwmHints hints;
 		hints.flags = MWM_HINTS_DECORATIONS;
 		hints.decorations = borderless ? 0 : 1;
-		
+
 		XChangeProperty(pData->xDisplay, pData->xWindow, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);
 #endif
 }
