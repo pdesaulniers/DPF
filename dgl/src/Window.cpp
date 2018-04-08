@@ -1382,6 +1382,38 @@ void Window::onClose()
 }
 
 //fork----------
+void Window::setBorderless(bool borderless)
+{
+
+#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
+		struct MwmHints {
+    	unsigned long flags;
+    	unsigned long functions;
+    	unsigned long decorations;
+    	long input_mode;
+    	unsigned long status;
+		};
+		enum {
+    		MWM_HINTS_FUNCTIONS = (1L << 0),
+    		MWM_HINTS_DECORATIONS =  (1L << 1),
+
+    		MWM_FUNC_ALL = (1L << 0),
+    		MWM_FUNC_RESIZE = (1L << 1),
+    		MWM_FUNC_MOVE = (1L << 2),
+    		MWM_FUNC_MINIMIZE = (1L << 3),
+    		MWM_FUNC_MAXIMIZE = (1L << 4),
+    		MWM_FUNC_CLOSE = (1L << 5)
+		};
+
+		Atom mwmHintsProperty = XInternAtom(pData->xDisplay, "_MOTIF_WM_HINTS", 0);
+		struct MwmHints hints;
+		hints.flags = MWM_HINTS_DECORATIONS;
+		hints.decorations = borderless ? 0 : 1;
+		
+		XChangeProperty(pData->xDisplay, pData->xWindow, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);
+#endif
+}
+
 void Window::saveSizeAtExit(bool yesno)
 {
 	pData->fMustSaveSize = yesno;

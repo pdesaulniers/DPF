@@ -115,6 +115,7 @@ public:
     void removeIdleCallback(IdleCallback *const callback);
 
     //fork-----------------
+    void setBorderless(bool borderless);
     void saveSizeAtExit(bool yesno);
     bool mustSaveSize();
     
