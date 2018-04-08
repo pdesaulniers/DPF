@@ -183,6 +183,12 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 	view->eventFunc = eventFunc;
 }
 
+void
+puglSetFileSelectedFunc(PuglView* view, PuglFileSelectedFunc fileSelectedFunc)
+{
+	view->fileSelectedFunc = fileSelectedFunc;
+}
+
 /** Return the code point for buf, or the replacement character on error. */
 static uint32_t
 puglDecodeUTF8(const uint8_t* buf)
