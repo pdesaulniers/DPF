@@ -212,10 +212,10 @@ struct Window::PrivateData
 		puglInitWindowSize(fView, static_cast<int>(fWidth), static_cast<int>(fHeight));
 		puglSetHandle(fView, this);
 		puglSetEventFunc(fView, onEventCallback);
-		/*
+
 #ifndef DGL_FILE_BROWSER_DISABLED
 		puglSetFileSelectedFunc(fView, fileBrowserSelectedCallback);
-#endif*/
+#endif
 
 		puglCreateWindow(fView, nullptr);
 

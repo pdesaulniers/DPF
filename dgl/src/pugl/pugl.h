@@ -611,6 +611,16 @@ puglPostRedisplay(PuglView* view);
 PUGL_API void
 puglDestroy(PuglView* view);
 
+//fork
+typedef void (*PuglFileSelectedFunc)(PuglView* view, const char* filename);
+
+/**
+   Set the function to call on file-browser selections.
+*/
+PUGL_API void
+puglSetFileSelectedFunc(PuglView* view, PuglFileSelectedFunc fileSelectedFunc);
+
+
 /**
    @}
 */

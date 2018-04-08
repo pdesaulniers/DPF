@@ -58,6 +58,8 @@ struct PuglViewImpl {
 	bool     redisplay;
 	bool     resizable;
 	bool     visible;
+	
+	PuglFileSelectedFunc fileSelectedFunc;
 };
 
 PuglInternals* puglInitInternals(void);

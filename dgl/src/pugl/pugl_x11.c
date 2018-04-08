@@ -42,6 +42,12 @@
 #include "pugl/cairo_gl.h"
 #include "pugl/pugl_internal.h"
 
+#ifndef DGL_FILE_BROWSER_DISABLED
+#define SOFD_HAVE_X11
+#include "../sofd/libsofd.h"
+#include "../sofd/libsofd.c"
+#endif
+
 #ifndef MIN
 #    define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #endif
@@ -360,6 +366,9 @@ void
 puglDestroy(PuglView* view)
 {
 	if (view) {
+#ifndef DGL_FILE_BROWSER_DISABLED
+		x_fib_close(view->impl->display);
+#endif
 		destroyContext(view);
 		XDestroyWindow(view->impl->display, view->impl->win);
 		XCloseDisplay(view->impl->display);
@@ -618,6 +627,28 @@ puglProcessEvents(PuglView* view)
 	XEvent    xevent;
 	while (XPending(view->impl->display) > 0) {
 		XNextEvent(view->impl->display, &xevent);
+
+#ifndef DGL_FILE_BROWSER_DISABLED
+		if (x_fib_handle_events(view->impl->display, &xevent)) {
+			const int status = x_fib_status();
+
+			if (status > 0) {
+				char* const filename = x_fib_filename();
+				x_fib_close(view->impl->display);
+				if (view->fileSelectedFunc) {
+					view->fileSelectedFunc(view, filename);
+				}
+				free(filename);
+			} else if (status < 0) {
+				x_fib_close(view->impl->display);
+				if (view->fileSelectedFunc) {
+					view->fileSelectedFunc(view, NULL);
+				}
+			}
+			break;
+		}
+#endif
+
 		if (xevent.type == KeyRelease) {
 			// Ignore key repeat if necessary
 			if (view->ignoreKeyRepeat &&
