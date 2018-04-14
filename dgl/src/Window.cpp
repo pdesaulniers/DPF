@@ -1578,9 +1578,25 @@ void Window::setCursorPos(int x, int y) noexcept
 	CGWarpMouseCursorPosition(CGPointMake(x, y));
 
 #else
-	XWarpPointer(pData->xDisplay, None, pData->xWindow, 0, 0, 0, 0, x, y);
+	Display *xDisplay = pData->xDisplay;	
+	XEvent xEvent;
 
-	XSync(pData->xDisplay, True);
+	XSynchronize(xDisplay, True);
+
+	XWarpPointer(xDisplay, None, pData->xWindow, 0, 0, 0, 0, x, y);
+
+	while (XPending(xDisplay) > 0) 
+	{
+		XNextEvent(xDisplay, &xEvent);
+
+		if (xEvent.type == ButtonRelease) 
+		{
+			PuglEvent event = translateEvent(pData->fView, xEvent);
+			pData->onMouseCallback(pData->fView, event.button.button, event.button.state, event.button.x, event.button.y);
+		} 
+	}
+
+	XSynchronize(xDisplay, False);
 #endif
 }
 
