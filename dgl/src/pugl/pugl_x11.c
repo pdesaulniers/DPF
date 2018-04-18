@@ -647,7 +647,7 @@ puglProcessEvents(PuglView* view)
 				}
 			}
 
-			return;
+			break;
 		}
 #endif
 
@@ -710,7 +710,7 @@ puglProcessEvents(PuglView* view)
 		}
 #endif
 #endif
-		//puglDispatchEvent(view, (const PuglEvent*)&config_event);
+		puglDispatchEvent(view, (const PuglEvent*)&config_event);
 	}
 
 	if (view->redisplay) {
