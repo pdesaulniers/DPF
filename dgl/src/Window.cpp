@@ -1387,9 +1387,10 @@ Point<int> Window::getAbsolutePos()
 {
 	int posX;
 	int posY;
-	::Window unused;
 
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
+	::Window unused;
+
 	XTranslateCoordinates(pData->xDisplay,
                       pData->xWindow,         // get position for this window
                       DefaultRootWindow(pData->xDisplay),
