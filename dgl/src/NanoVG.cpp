@@ -53,14 +53,6 @@ DGL_EXT(PFNGLUNIFORM2FVPROC,               glUniform2fv)
 DGL_EXT(PFNGLUNIFORM4FVPROC,               glUniform4fv)
 DGL_EXT(PFNGLUSEPROGRAMPROC,               glUseProgram)
 DGL_EXT(PFNGLVERTEXATTRIBPOINTERPROC,      glVertexAttribPointer)
-DGL_EXT(PFNGLBLENDFUNCSEPARATEPROC,        glBlendFuncSeparate)
-DGL_EXT(PFNGLGETUNIFORMBLOCKINDEXPROC,     glGetUniformBlockIndex)
-DGL_EXT(PFNGLGENVERTEXARRAYSPROC,          glGenVertexArrays)
-DGL_EXT(PFNGLUNIFORMBLOCKBINDINGPROC,      glUniformBlockBinding)
-DGL_EXT(PFNGLGENERATEMIPMAPPROC,           glGenerateMipmap)
-DGL_EXT(PFNGLBINDBUFFERRANGEPROC,          glBindBufferRange)
-DGL_EXT(PFNGLBINDVERTEXARRAYPROC,          glBindVertexArray)
-DGL_EXT(PFNGLDELETEVERTEXARRAYSPROC,       glDeleteVertexArrays)
 # undef DGL_EXT
 #endif
 
@@ -122,14 +114,6 @@ DGL_EXT(PFNGLUNIFORM2FVPROC,               glUniform2fv)
 DGL_EXT(PFNGLUNIFORM4FVPROC,               glUniform4fv)
 DGL_EXT(PFNGLUSEPROGRAMPROC,               glUseProgram)
 DGL_EXT(PFNGLVERTEXATTRIBPOINTERPROC,      glVertexAttribPointer)
-DGL_EXT(PFNGLBLENDFUNCSEPARATEPROC,        glBlendFuncSeparate)
-DGL_EXT(PFNGLGETUNIFORMBLOCKINDEXPROC,     glGetUniformBlockIndex)
-DGL_EXT(PFNGLGENVERTEXARRAYSPROC,          glGenVertexArrays)
-DGL_EXT(PFNGLUNIFORMBLOCKBINDINGPROC,      glUniformBlockBinding)
-DGL_EXT(PFNGLGENERATEMIPMAPPROC,           glGenerateMipmap)
-DGL_EXT(PFNGLBINDBUFFERRANGEPROC,          glBindBufferRange)
-DGL_EXT(PFNGLBINDVERTEXARRAYPROC,          glBindVertexArray)
-DGL_EXT(PFNGLDELETEVERTEXARRAYSPROC,       glDeleteVertexArrays)
 # undef DGL_EXT
     }
 #endif
@@ -187,11 +171,7 @@ GLuint NanoImage::getTextureHandle() const
 {
     DISTRHO_SAFE_ASSERT_RETURN(fHandle.context != nullptr && fHandle.imageId != 0, 0);
 
-#if defined(NANOVG_GL2_IMPLEMENTATION)
-    return nvglImageHandleGL2(fHandle.context, fHandle.imageId);
-#else
-    return nvglImageHandleGL3(fHandle.context, fHandle.imageId);
-#endif
+    return nvglImageHandle(fHandle.context, fHandle.imageId);
 }
 
 void NanoImage::_updateSize()
@@ -622,17 +602,10 @@ NanoImage::Handle NanoVG::createImageFromTextureHandle(GLuint textureId, uint w,
     if (! deleteTexture)
         imageFlags |= NVG_IMAGE_NODELETE;
 
-#if defined(NANOVG_GL2_IMPLEMENTATION)
-    return NanoImage::Handle(fContext, nvglCreateImageFromHandleGL2(fContext,
+    return NanoImage::Handle(fContext, nvglCreateImageFromHandle(fContext,
                                                                  textureId,
                                                                  static_cast<int>(w),
                                                                  static_cast<int>(h), imageFlags));
-#else
-    return NanoImage::Handle(fContext, nvglCreateImageFromHandleGL3(fContext,
-                                                                 textureId,
-                                                                 static_cast<int>(w),
-                                                                 static_cast<int>(h), imageFlags));
-#endif
 }
 
 // -----------------------------------------------------------------------
