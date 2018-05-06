@@ -255,8 +255,8 @@ public:
 
 #if !defined(DISTRHO_PLUGIN_TARGET_DSSI) && !defined(DISTRHO_PLUGIN_TARGET_JACK)
 
-        fIdleThread = new IdleThread(this);
-        fIdleThread->startThread();
+        //fIdleThread = new IdleThread(this);
+        //fIdleThread->startThread();
 #endif
 #ifdef HAVE_DGL
         // unused
@@ -266,7 +266,7 @@ public:
 
 friend class IdleThread;
 
-#if !defined(DISTRHO_PLUGIN_TARGET_DSSI) && !defined(DISTRHO_PLUGIN_TARGET_JACK)
+//#if !defined(DISTRHO_PLUGIN_TARGET_DSSI) && !defined(DISTRHO_PLUGIN_TARGET_JACK)
 
     ~UIExporter() 
     {
@@ -294,10 +294,10 @@ friend class IdleThread;
             fclose(file);
         }
             
-        fIdleThread->stopThread(-1);
+        //fIdleThread->stopThread(-1);
     }
 
-#endif
+//#endif
 
     // -------------------------------------------------------------------
 
@@ -405,12 +405,10 @@ friend class IdleThread;
         DISTRHO_SAFE_ASSERT_RETURN(fUI != nullptr, false);
 
 #if defined(HAVE_DGL) 
-#if defined(DISTRHO_PLUGIN_TARGET_DSSI)
         glApp.idle();
 
         if (glWindow.isReady())
             fUI->uiIdle();
-#endif
 #else
         return fUI->isRunning();
 #endif
