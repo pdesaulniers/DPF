@@ -79,7 +79,7 @@ struct Window::PrivateData
 	PrivateData(Application &app, Window *const self)
 		: fApp(app),
 		  fSelf(self),
-		  fView(puglInit(NULL, NULL)),
+		  fView(puglInit()),
 		  fFirstInit(true),
 		  fVisible(false),
 		  fResizable(true),
@@ -109,7 +109,7 @@ struct Window::PrivateData
 	PrivateData(Application &app, Window *const self, Window &parent)
 		: fApp(app),
 		  fSelf(self),
-		  fView(puglInit(NULL, NULL)),
+		  fView(puglInit()),
 		  fFirstInit(true),
 		  fVisible(false),
 		  fResizable(true),
@@ -153,7 +153,7 @@ struct Window::PrivateData
 	PrivateData(Application &app, Window *const self, const intptr_t parentId)
 		: fApp(app),
 		  fSelf(self),
-		  fView(puglInit(NULL, NULL)),
+		  fView(puglInit()),
 		  fFirstInit(true),
 		  fVisible(parentId != 0),
 		  fResizable(parentId == 0),
@@ -208,11 +208,18 @@ struct Window::PrivateData
 		}
 
 		puglInitContextType(fView, PUGL_GL);
-		puglInitResizable(fView, fResizable);
+		puglInitUserResizable(fView, fResizable);
 		puglInitWindowSize(fView, static_cast<int>(fWidth), static_cast<int>(fHeight));
-		puglSetHandle(fView, this);
-		puglSetEventFunc(fView, onEventCallback);
 
+		puglSetHandle(fView, this);
+		puglSetDisplayFunc(fView, onDisplayCallback);
+		puglSetKeyboardFunc(fView, onKeyboardCallback);
+		puglSetMotionFunc(fView, onMotionCallback);
+		puglSetMouseFunc(fView, onMouseCallback);
+		puglSetScrollFunc(fView, onScrollCallback);
+		puglSetSpecialFunc(fView, onSpecialCallback);
+		puglSetReshapeFunc(fView, onReshapeCallback);
+		puglSetCloseFunc(fView, onCloseCallback);
 #ifndef DGL_FILE_BROWSER_DISABLED
 		puglSetFileSelectedFunc(fView, fileBrowserSelectedCallback);
 #endif
@@ -259,8 +266,8 @@ struct Window::PrivateData
 
 		XFreePixmap(xDisplay, bitmapNoData);
 
-		xClipCursorWindow = XCreateWindow(xDisplay, xWindow, 0, 0, fWidth, fHeight, 0, 0, InputOnly, NULL, 0, NULL);
-
+		xClipCursorWindow = XCreateWindow(xDisplay, xWindow, 0, 0, fWidth, fHeight, 0, 0, InputOnly, NULL, 0, NULL);                
+		
 		XMapWindow(xDisplay, xClipCursorWindow);
 		//-------------
 #endif
@@ -746,8 +753,8 @@ struct Window::PrivateData
 		Widget::KeyboardEvent ev;
 		ev.press = press;
 		ev.key = key;
-		//ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
-		//ev.time = puglGetEventTimestamp(fView);
+		ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
+		ev.time = puglGetEventTimestamp(fView);
 
 		FOR_EACH_WIDGET_INV(rit)
 		{
@@ -773,8 +780,8 @@ struct Window::PrivateData
 		Widget::SpecialEvent ev;
 		ev.press = press;
 		ev.key = key;
-		//ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
-		//ev.time = puglGetEventTimestamp(fView);
+		ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
+		ev.time = puglGetEventTimestamp(fView);
 
 		FOR_EACH_WIDGET_INV(rit)
 		{
@@ -801,8 +808,8 @@ struct Window::PrivateData
 		Widget::MouseEvent ev;
 		ev.button = button;
 		ev.press = press;
-		//ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
-		//ev.time = puglGetEventTimestamp(fView);
+		ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
+		ev.time = puglGetEventTimestamp(fView);
 
 		FOR_EACH_WIDGET_INV(rit)
 		{
@@ -823,8 +830,8 @@ struct Window::PrivateData
 			return;
 
 		Widget::MotionEvent ev;
-		//ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
-		//ev.time = puglGetEventTimestamp(fView);
+		ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
+		ev.time = puglGetEventTimestamp(fView);
 
 		FOR_EACH_WIDGET_INV(rit)
 		{
@@ -846,8 +853,8 @@ struct Window::PrivateData
 
 		Widget::ScrollEvent ev;
 		ev.delta = Point<float>(dx, dy);
-		//ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
-		//ev.time = puglGetEventTimestamp(fView);
+		ev.mod = static_cast<Modifier>(puglGetModifiers(fView));
+		ev.time = puglGetEventTimestamp(fView);
 
 		FOR_EACH_WIDGET_INV(rit)
 		{
@@ -911,7 +918,7 @@ struct Window::PrivateData
 		Widget::KeyboardEvent ev;
 		ev.press = press;
 		ev.key = key;
-		//ev.mod = static_cast<Modifier>(fView->mods);
+		ev.mod = static_cast<Modifier>(fView->mods);
 		ev.time = 0;
 
 		if ((ev.mod & kModifierShift) != 0 && ev.key >= 'a' && ev.key <= 'z')
@@ -955,18 +962,18 @@ struct Window::PrivateData
 			break;
 		}
 
-		/*if (mods != 0x0)
+		if (mods != 0x0)
 		{
 			if (press)
 				fView->mods |= mods;
 			else
 				fView->mods &= ~(mods);
-		}*/
+		}
 
 		Widget::SpecialEvent ev;
 		ev.press = press;
 		ev.key = key;
-		//ev.mod = static_cast<Modifier>(fView->mods);
+		ev.mod = static_cast<Modifier>(fView->mods);
 		ev.time = 0;
 
 		FOR_EACH_WIDGET_INV(rit)
@@ -1035,7 +1042,7 @@ struct Window::PrivateData
 	Display *xDisplay;
 
 	::Window xWindow;
-
+	
 	//fork---------
 	::Window xClipCursorWindow;
 	Cursor invisibleCursor;
@@ -1050,38 +1057,6 @@ struct Window::PrivateData
 	static void onDisplayCallback(PuglView *view)
 	{
 		handlePtr->onPuglDisplay();
-	}
-
-	static void onEventCallback(PuglView *view, const PuglEvent *event)
-	{
-		switch (event->type)
-		{
-		case PUGL_NOTHING:
-			break;
-		case PUGL_CONFIGURE:
-			onReshapeCallback(view, event->configure.width, event->configure.height);
-			break;
-		case PUGL_EXPOSE:
-			onDisplayCallback(view);
-			break;
-		case PUGL_CLOSE:
-			onCloseCallback(view);
-			break;
-		case PUGL_MOTION_NOTIFY:
-			onMotionCallback(view, event->motion.x, event->motion.y);
-			break;
-		case PUGL_BUTTON_PRESS:
-			onMouseCallback(view, event->button.button, true, event->button.x, event->button.y);
-			break;
-		case PUGL_BUTTON_RELEASE:
-			onMouseCallback(view, event->button.button, false, event->button.x, event->button.y);
-			break;
-		case PUGL_SCROLL:
-			onScrollCallback(view, event->scroll.x, event->scroll.y, event->scroll.dx, event->scroll.dy);
-			break;
-		default:
-			break;
-		}
 	}
 
 	static int onKeyboardCallback(PuglView *view, bool press, uint32_t key)
@@ -1382,67 +1357,6 @@ void Window::onClose()
 }
 
 //fork----------
-
-Point<int> Window::getAbsolutePos()
-{
-	int posX;
-	int posY;
-
-#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
-	::Window unused;
-
-	XTranslateCoordinates(pData->xDisplay,
-                      pData->xWindow,         // get position for this window
-                      DefaultRootWindow(pData->xDisplay),
-                      0, 0,
-                      &posX,
-                      &posY,
-					  &unused);
-						
-	return Point<int>(posX, posY);
-#endif
-
-}
-
-void Window::setAbsolutePos(const uint x, const uint y)
-{
-#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
-	//https://stackoverflow.com/questions/41622735/hide-window-from-linux-taskbar
-#endif
-}
-
-void Window::setBorderless(bool borderless)
-{
-
-#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
-		struct MwmHints {
-    		unsigned long flags;
-    		unsigned long functions;
-    		unsigned long decorations;
-    		long input_mode;
-    		unsigned long status;
-		};
-		enum {
-    		MWM_HINTS_FUNCTIONS = (1L << 0),
-    		MWM_HINTS_DECORATIONS =  (1L << 1),
-
-    		MWM_FUNC_ALL = (1L << 0),
-    		MWM_FUNC_RESIZE = (1L << 1),
-    		MWM_FUNC_MOVE = (1L << 2),
-    		MWM_FUNC_MINIMIZE = (1L << 3),
-    		MWM_FUNC_MAXIMIZE = (1L << 4),
-    		MWM_FUNC_CLOSE = (1L << 5)
-		};
-
-		Atom mwmHintsProperty = XInternAtom(pData->xDisplay, "_MOTIF_WM_HINTS", 0);
-		struct MwmHints hints;
-		hints.flags = MWM_HINTS_DECORATIONS;
-		hints.decorations = borderless ? 0 : 1;
-
-		XChangeProperty(pData->xDisplay, pData->xWindow, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);
-#endif
-}
-
 void Window::saveSizeAtExit(bool yesno)
 {
 	pData->fMustSaveSize = yesno;
@@ -1467,31 +1381,31 @@ void Window::setCursorStyle(CursorStyle style) noexcept
 #else
 	String cursorName;
 
-	switch (style)
+	switch(style)
 	{
-	case CursorStyle::Default:
-		cursorName = "default";
-		break;
-	case CursorStyle::Grab:
-		cursorName = "grab";
-		break;
-	case CursorStyle::Grabbing:
-		cursorName = "grabbing";
-		break;
-	case CursorStyle::Pointer:
-		cursorName = "pointer";
-		break;
-	case CursorStyle::NW_SE_Resize:
-		cursorName = "bottom_right_corner";
-		break;
-	case CursorStyle::UpDown:
-		cursorName = "sb_v_double_arrow";
-		break;
-	default:
-		cursorName = "default";
-		break;
+		case CursorStyle::Default:
+			cursorName = "default";
+			break;
+		case CursorStyle::Grab:
+			cursorName = "grab";
+			break;
+		case CursorStyle::Grabbing:
+			cursorName = "grabbing";
+			break;
+		case CursorStyle::Pointer:
+			cursorName = "pointer";
+			break;
+		case CursorStyle::NW_SE_Resize:
+			cursorName = "bottom_right_corner";
+			break;
+		case CursorStyle::UpDown:
+			cursorName = "sb_v_double_arrow";
+			break;
+		default:
+			cursorName = "default";
+			break;
 	}
-
+		
 	Cursor cursor = XcursorLibraryLoadCursor(pData->xDisplay, cursorName);
 	XDefineCursor(pData->xDisplay, pData->xWindow, cursor);
 
@@ -1502,8 +1416,7 @@ void Window::setCursorStyle(CursorStyle style) noexcept
 void Window::showCursor() noexcept
 {
 #if defined(DISTRHO_OS_WINDOWS)
-	while (ShowCursor(true) < 0)
-		;
+	while (ShowCursor(true) < 0);
 
 #elif defined(DISTRHO_OS_MAC)
 	CGDisplayShowCursor(kCGNullDirectDisplay);
@@ -1518,8 +1431,7 @@ void Window::showCursor() noexcept
 void Window::hideCursor() noexcept
 {
 #if defined(DISTRHO_OS_WINDOWS)
-	while (ShowCursor(false) >= 0)
-		;
+	while (ShowCursor(false) >= 0);
 
 #elif defined(DISTRHO_OS_MAC)
 	CGDisplayHideCursor(kCGNullDirectDisplay);
@@ -1540,28 +1452,28 @@ const Point<int> Window::getCursorPos() const noexcept
 	ScreenToClient(pData->hwnd, &pos);
 
 	return Point<int>(pos.x, pos.y);
-
+	
 #elif defined(DISTRHO_OS_MAC)
 	NSPoint mouseLoc = [NSEvent mouseLocation];
-
+	
 	const int x = static_cast<int>(mouseLoc.x);
 	const int y = static_cast<int>(pData->fHeight - mouseLoc.y); //flip y so that the origin is at the top left
 
 	fprintf(stderr, "%d %d\n", x, y);
-	return Point<int>(x, y);
+	return Point<int>(x, y); 
 
 #else
 	int posX, posY;
-
+	
 	//unused variables
 	int i;
 	uint u;
 	::Window w;
 
 	XQueryPointer(pData->xDisplay, pData->xWindow, &w, &w, &i, &i, &posX, &posY, &u);
-
+	 
 	return Point<int>(posX, posY);
-#endif
+#endif	
 }
 
 /**
@@ -1579,34 +1491,18 @@ void Window::setCursorPos(int x, int y) noexcept
 	CGWarpMouseCursorPosition(CGPointMake(x, y));
 
 #else
-	Display *xDisplay = pData->xDisplay;	
-	XEvent xEvent;
+	XWarpPointer(pData->xDisplay, None, pData->xWindow, 0, 0, 0, 0, x, y);
 
-	XSynchronize(xDisplay, True);
-
-	XWarpPointer(xDisplay, None, pData->xWindow, 0, 0, 0, 0, x, y);
-
-	while (XPending(xDisplay) > 0) 
-	{
-		XNextEvent(xDisplay, &xEvent);
-
-		if (xEvent.type == ButtonRelease) 
-		{
-			PuglEvent event = translateEvent(pData->fView, xEvent);
-			pData->onMouseCallback(pData->fView, event.button.button, event.button.state, event.button.x, event.button.y);
-		} 
-	}
-
-	XSynchronize(xDisplay, False);
+	XSync(pData->xDisplay, True);
 #endif
 }
 
-void Window::setCursorPos(const Point<int> &pos) noexcept
+void Window::setCursorPos(const Point<int>& pos) noexcept
 {
 	setCursorPos(pos.getX(), pos.getY());
 }
 
-void Window::setCursorPos(Widget *const widget) noexcept
+void Window::setCursorPos(Widget* const widget) noexcept
 {
 	setCursorPos(widget->getAbsoluteX() + widget->getWidth() / 2, widget->getAbsoluteY() + widget->getHeight() / 2);
 }
@@ -1614,10 +1510,10 @@ void Window::setCursorPos(Widget *const widget) noexcept
 void Window::clipCursor(Rectangle<int> rect) const noexcept
 {
 	pData->fCursorIsClipped = true;
-
+	
 #if defined(DISTRHO_OS_WINDOWS)
 	RECT winRect, clipRect;
-	GetWindowRect(pData->hwnd, &winRect);
+	GetWindowRect(pData->hwnd, &winRect);	
 
 	clipRect.left = rect.getX() + winRect.left;
 	clipRect.right = rect.getX() + rect.getWidth() + winRect.left + 1;
@@ -1635,10 +1531,10 @@ void Window::clipCursor(Rectangle<int> rect) const noexcept
 
 	XGrabPointer(pData->xDisplay, pData->xWindow, True, 0, GrabModeAsync, GrabModeAsync, pData->xClipCursorWindow, None, CurrentTime);
 	XSync(pData->xDisplay, False);
-#endif
+#endif	
 }
 
-void Window::clipCursor(Widget *const widget) const noexcept
+void Window::clipCursor(Widget* const widget) const noexcept 
 {
 	const Point<int> pos = widget->getAbsolutePos();
 	const uint width = widget->getWidth();
@@ -1659,12 +1555,12 @@ void Window::unclipCursor() const noexcept
 
 #else
 	XUngrabPointer(pData->xDisplay, CurrentTime);
-
+	
 	XSync(pData->xDisplay, False);
-#endif
+#endif	
 }
 
-	//end fork------
+//end fork------
 
 #ifndef DGL_FILE_BROWSER_DISABLED
 void Window::fileBrowserSelected(const char *)

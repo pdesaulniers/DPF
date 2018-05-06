@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2014 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -14,19 +14,28 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file glu.h Portable header wrapper for glu.h.
+#ifndef PUGL_EVENT_H_INCLUDED
+#define PUGL_EVENT_H_INCLUDED
 
-   Unfortunately, GL includes vary across platforms so this header allows for
-   pure portable programs.
-*/
-
-#ifdef __APPLE__
-#    include "OpenGL/glu.h"
+#ifdef __cplusplus
+extern "C" {
 #else
-#    ifdef _WIN32
-#        include <windows.h>  /* Broken Windows GL headers require this */
-#    endif
-#    include "GL/glu.h"
+#    include <stdbool.h>
 #endif
 
+#include "pugl/common.h"
+
+/**
+   @addtogroup pugl
+   @{
+*/
+
+/**
+   @}
+*/
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
+
+#endif  /* PUGL_EVENT_H_INCLUDED */
