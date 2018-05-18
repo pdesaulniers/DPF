@@ -1473,10 +1473,12 @@ void Window::setCursorStyle(CursorStyle style) noexcept
 		cursorName = "default";
 		break;
 	case CursorStyle::Grab:
-		cursorName = "grab";
+		//cursorName = "grab";
+		cursorName = "pointer";
 		break;
 	case CursorStyle::Grabbing:
-		cursorName = "grabbing";
+		//cursorName = "grabbing";
+		cursorName = "pointer";
 		break;
 	case CursorStyle::Pointer:
 		cursorName = "pointer";
