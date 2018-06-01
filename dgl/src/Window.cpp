@@ -1433,13 +1433,22 @@ Point<int> Window::getAbsolutePos()
 void Window::setAbsolutePos(const uint x, const uint y)
 {
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
-	//https://stackoverflow.com/questions/41622735/hide-window-from-linux-taskbar
+	XMoveWindow(pData->xDisplay, pData->xWindow, x, y);
+#endif
+}
+
+void Window::hideFromTaskbar()
+{
+#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
+		Atom wmState = XInternAtom(pData->xDisplay,  "_NET_WM_STATE", False);
+		Atom atom = XInternAtom(pData->xDisplay, "_NET_WM_STATE_SKIP_TASKBAR", False);
+
+		XChangeProperty(pData->xDisplay, pData->xWindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&atom, 1);
 #endif
 }
 
 void Window::setBorderless(bool borderless)
 {
-
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
 		struct MwmHints {
     		unsigned long flags;

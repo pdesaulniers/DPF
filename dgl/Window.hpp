@@ -119,6 +119,8 @@ public:
     void setAbsolutePos(const uint x, const uint y);
 
     void setBorderless(bool borderless);
+    void hideFromTaskbar();
+
     void saveSizeAtExit(bool yesno);
     bool mustSaveSize();
     
