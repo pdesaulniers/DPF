@@ -362,6 +362,8 @@ protected:
     */
     virtual void onResize(const ResizeEvent&);
 
+    virtual void onFocusOut();
+    
 private:
     struct PrivateData;
     PrivateData* const pData;

@@ -174,6 +174,7 @@ public:
     virtual void onDisplayBefore();
     virtual void onDisplayAfter();
     virtual void onReshape(uint width, uint height);
+    virtual void onFocusOut();
     virtual void onClose();
 
 #ifndef DGL_FILE_BROWSER_DISABLED

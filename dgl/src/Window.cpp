@@ -424,8 +424,6 @@ struct Window::PrivateData
 		DBG("Ok\n");
 	}
 
-	// -------------------------------------------------------------------
-
 	void focus()
 	{
 		DBG("Window focus\n");
@@ -440,7 +438,7 @@ struct Window::PrivateData
 			//[NSApp activateIgnoringOtherApps:YES];
 			//[mWindow makeKeyAndOrderFront:mWindow];
 		}
-#else
+#else				
 		XRaiseWindow(xDisplay, xWindow);
 		XSetInputFocus(xDisplay, xWindow, RevertToPointerRoot, CurrentTime);
 		XFlush(xDisplay);
@@ -896,6 +894,22 @@ struct Window::PrivateData
 		close();
 	}
 
+	void onPuglFocusOut()
+	{
+		DBG("PUGL: onFocusOut\n");
+
+		fSelf->onFocusOut();
+
+		FOR_EACH_WIDGET_INV(rit)
+		{
+			Widget *const widget(*rit);
+
+			widget->onFocusOut();
+		}
+
+		fSelf->unclipCursor();
+	}
+	
 	// -------------------------------------------------------------------
 
 	bool handlePluginKeyboard(const bool press, const uint key)
@@ -1079,6 +1093,9 @@ struct Window::PrivateData
 		case PUGL_SCROLL:
 			onScrollCallback(view, event->scroll.x, event->scroll.y, event->scroll.dx, event->scroll.dy);
 			break;
+		case PUGL_FOCUS_OUT:
+			onFocusOutCallback(view);
+			break;
 		default:
 			break;
 		}
@@ -1117,6 +1134,11 @@ struct Window::PrivateData
 	static void onCloseCallback(PuglView *view)
 	{
 		handlePtr->onPuglClose();
+	}
+
+	static void onFocusOutCallback(PuglView *view)
+	{
+		handlePtr->onPuglFocusOut();
 	}
 
 #ifndef DGL_FILE_BROWSER_DISABLED
@@ -1375,6 +1397,10 @@ void Window::onReshape(uint width, uint height)
 	glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+}
+
+void Window::onFocusOut()
+{
 }
 
 void Window::onClose()

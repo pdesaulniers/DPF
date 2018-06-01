@@ -245,6 +245,10 @@ void Widget::onResize(const ResizeEvent&)
 {
 }
 
+void Widget::onFocusOut()
+{
+}
+
 // -----------------------------------------------------------------------
 
 END_NAMESPACE_DGL
