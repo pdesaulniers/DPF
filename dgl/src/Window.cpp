@@ -1409,6 +1409,25 @@ void Window::onClose()
 
 //fork----------
 
+void Window::setMinSize(uint width, uint height)
+{
+#if defined(DISTRHO_OS_MAC)
+	[pData->mWindow setContentMinSize:NSMakeSize(width, height)];
+#elif !defined(DISTRHO_OS_WINDOWS) //Linux
+	XSizeHints sizeHints;
+	memset(&sizeHints, 0, sizeof(sizeHints));
+
+	sizeHints.flags = PMinSize;
+	sizeHints.min_width = static_cast<int>(width);
+	sizeHints.min_height = static_cast<int>(height);
+
+	XSetNormalHints(pData->xDisplay, pData->xWindow, &sizeHints);
+#endif	
+
+	pData->fView->min_width = width;
+	pData->fView->min_height = height;
+}
+
 Point<int> Window::getAbsolutePos()
 {
 	int posX;
