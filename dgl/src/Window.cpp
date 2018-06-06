@@ -375,7 +375,9 @@ struct Window::PrivateData
 		fModal.parent->fModal.childFocus = this;
 
 #ifdef DISTRHO_OS_WINDOWS
-		// Center this window
+		//commenting this out for the right-click menu, since we want to position the window ourself
+
+		/* // Center this window
 		PuglInternals *const parentImpl = fModal.parent->fView->impl;
 
 		RECT curRect;
@@ -387,7 +389,7 @@ struct Window::PrivateData
 		int y = parentRect.top + (parentRect.bottom - curRect.bottom) / 2;
 
 		SetWindowPos(hwnd, 0, x, y, 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
-		UpdateWindow(hwnd);
+		UpdateWindow(hwnd); */
 #endif
 
 		fModal.parent->setVisible(true);
@@ -794,7 +796,10 @@ struct Window::PrivateData
 			return;
 
 		if (fModal.childFocus != nullptr)
-			return fModal.childFocus->focus();
+		{
+			//this would cause some issues with right-click menu
+			//return fModal.childFocus->focus();
+		}
 
 		Widget::MouseEvent ev;
 		ev.button = button;
@@ -1424,7 +1429,8 @@ void Window::setMinSize(uint width, uint height)
 	XSetNormalHints(pData->xDisplay, pData->xWindow, &sizeHints);
 #endif	
 
-	pData->fView->min_width = width;
+	//pugl takes care of it for windows
+	pData->fView->min_width = width; 
 	pData->fView->min_height = height;
 }
 
@@ -1437,7 +1443,7 @@ Point<int> Window::getAbsolutePos()
 	::Window unused;
 
 	XTranslateCoordinates(pData->xDisplay,
-                      pData->xWindow,         // get position for this window
+                      pData->xWindow,
                       DefaultRootWindow(pData->xDisplay),
                       0, 0,
                       &posX,
@@ -1445,55 +1451,70 @@ Point<int> Window::getAbsolutePos()
 					  &unused);
 						
 	return Point<int>(posX, posY);
-#endif
+#elif defined(DISTRHO_OS_WINDOWS)
+	RECT windowRect;
+    GetWindowRect(pData->hwnd, &windowRect);
 
+	return Point<int>(windowRect.left, windowRect.top);
+#endif
 }
 
 void Window::setAbsolutePos(const uint x, const uint y)
 {
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
 	XMoveWindow(pData->xDisplay, pData->xWindow, x, y);
+
+#elif defined(DISTRHO_OS_WINDOWS)	
+	SetWindowPos(pData->hwnd, HWND_TOP, x, y, getWidth(), getHeight(), isVisible() ? SWP_SHOWWINDOW : SWP_HIDEWINDOW);
+
 #endif
 }
 
 void Window::hideFromTaskbar()
 {
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
-		Atom wmState = XInternAtom(pData->xDisplay,  "_NET_WM_STATE", False);
-		Atom atom = XInternAtom(pData->xDisplay, "_NET_WM_STATE_SKIP_TASKBAR", False);
+	Atom wmState = XInternAtom(pData->xDisplay,  "_NET_WM_STATE", False);
+	Atom atom = XInternAtom(pData->xDisplay, "_NET_WM_STATE_SKIP_TASKBAR", False);
 
-		XChangeProperty(pData->xDisplay, pData->xWindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&atom, 1);
+	XChangeProperty(pData->xDisplay, pData->xWindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&atom, 1);
+#elif defined(DISTRHO_OS_WINDOWS)	
+	SetWindowLong(pData->hwnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_APPWINDOW);
 #endif
 }
 
 void Window::setBorderless(bool borderless)
 {
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
-		struct MwmHints {
-    		unsigned long flags;
-    		unsigned long functions;
-    		unsigned long decorations;
-    		long input_mode;
-    		unsigned long status;
-		};
-		enum {
-    		MWM_HINTS_FUNCTIONS = (1L << 0),
-    		MWM_HINTS_DECORATIONS =  (1L << 1),
+	struct MwmHints {
+    	unsigned long flags;
+    	unsigned long functions;
+    	unsigned long decorations;
+    	long input_mode;
+    	unsigned long status;
+	};
+	enum {
+    	MWM_HINTS_FUNCTIONS = (1L << 0),
+    	MWM_HINTS_DECORATIONS =  (1L << 1),
 
-    		MWM_FUNC_ALL = (1L << 0),
-    		MWM_FUNC_RESIZE = (1L << 1),
-    		MWM_FUNC_MOVE = (1L << 2),
-    		MWM_FUNC_MINIMIZE = (1L << 3),
-    		MWM_FUNC_MAXIMIZE = (1L << 4),
-    		MWM_FUNC_CLOSE = (1L << 5)
-		};
+		MWM_FUNC_ALL = (1L << 0),
+		MWM_FUNC_RESIZE = (1L << 1),
+		MWM_FUNC_MOVE = (1L << 2),
+		MWM_FUNC_MINIMIZE = (1L << 3),
+		MWM_FUNC_MAXIMIZE = (1L << 4),
+		MWM_FUNC_CLOSE = (1L << 5)
+	};
 
-		Atom mwmHintsProperty = XInternAtom(pData->xDisplay, "_MOTIF_WM_HINTS", 0);
-		struct MwmHints hints;
-		hints.flags = MWM_HINTS_DECORATIONS;
-		hints.decorations = borderless ? 0 : 1;
+	Atom mwmHintsProperty = XInternAtom(pData->xDisplay, "_MOTIF_WM_HINTS", 0);
+	struct MwmHints hints;
+	hints.flags = MWM_HINTS_DECORATIONS;
+	hints.decorations = borderless ? 0 : 1;
 
-		XChangeProperty(pData->xDisplay, pData->xWindow, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);
+	XChangeProperty(pData->xDisplay, pData->xWindow, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);
+
+#elif defined(DISTRHO_OS_WINDOWS)	
+	LONG lStyle = GetWindowLong(pData->hwnd, GWL_STYLE);
+	lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+	SetWindowLong(pData->hwnd, GWL_STYLE, lStyle);
 #endif
 }
 
