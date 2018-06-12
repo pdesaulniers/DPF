@@ -1083,6 +1083,12 @@ struct Window::PrivateData
 		case PUGL_EXPOSE:
 			onDisplayCallback(view);
 			break;
+		case PUGL_KEY_PRESS:
+			onKeyboardCallback(view, true, event->key.character);
+			break;
+		case PUGL_KEY_RELEASE:
+			onKeyboardCallback(view, false, event->key.character);
+			break;
 		case PUGL_CLOSE:
 			onCloseCallback(view);
 			break;
