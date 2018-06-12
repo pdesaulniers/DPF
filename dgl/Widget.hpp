@@ -362,6 +362,10 @@ protected:
     */
     virtual void onResize(const ResizeEvent&);
 
+    virtual void onShow();
+    
+    virtual void onHide();
+
     virtual void onFocusOut();
     
 private:

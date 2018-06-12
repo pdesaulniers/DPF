@@ -1084,10 +1084,10 @@ struct Window::PrivateData
 			onDisplayCallback(view);
 			break;
 		case PUGL_KEY_PRESS:
-			onKeyboardCallback(view, true, event->key.character);
+			onKeyboardCallback(view, true, event->key.keycode);
 			break;
 		case PUGL_KEY_RELEASE:
-			onKeyboardCallback(view, false, event->key.character);
+			onKeyboardCallback(view, false, event->key.keycode);
 			break;
 		case PUGL_CLOSE:
 			onCloseCallback(view);

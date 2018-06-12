@@ -56,6 +56,16 @@ void Widget::setVisible(bool yesNo)
         return;
 
     pData->visible = yesNo;
+
+    if (yesNo)
+    {
+        onShow();
+    }
+    else
+    {
+        onHide();
+    }
+
     pData->parent.repaint();
 }
 
@@ -246,6 +256,14 @@ void Widget::onResize(const ResizeEvent&)
 }
 
 void Widget::onFocusOut()
+{
+}
+
+void Widget::onShow()
+{
+}
+
+void Widget::onHide()
 {
 }
 
