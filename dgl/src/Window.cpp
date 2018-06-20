@@ -37,7 +37,7 @@
 #else
 #include <sys/types.h>
 #include <unistd.h>
-#include <X11/Xcursor/Xcursor.h>
+#include <X11/cursorfont.h>
 
 extern "C" {
 #include "pugl/pugl_x11.c"
@@ -1546,36 +1546,34 @@ void Window::setCursorStyle(CursorStyle style) noexcept
 	[[NSCursor openHandCursor] set];
 
 #else
-	String cursorName;
+	uint cursorId;
 
 	switch (style)
 	{
 	case CursorStyle::Default:
-		cursorName = "default";
+		cursorId = XC_arrow;
 		break;
 	case CursorStyle::Grab:
-		//cursorName = "grab";
-		cursorName = "pointer";
+		cursorId = XC_hand2;
 		break;
 	case CursorStyle::Grabbing:
-		//cursorName = "grabbing";
-		cursorName = "pointer";
+		cursorId = XC_hand2;
 		break;
 	case CursorStyle::Pointer:
-		cursorName = "pointer";
+		cursorId = XC_hand2;
 		break;
 	case CursorStyle::NW_SE_Resize:
-		cursorName = "bottom_right_corner";
+		cursorId = XC_bottom_right_corner;
 		break;
 	case CursorStyle::UpDown:
-		cursorName = "sb_v_double_arrow";
+		cursorId = XC_sb_v_double_arrow;
 		break;
 	default:
-		cursorName = "default";
+		cursorId = XC_arrow;
 		break;
 	}
 
-	Cursor cursor = XcursorLibraryLoadCursor(pData->xDisplay, cursorName);
+	Cursor cursor = XCreateFontCursor(pData->xDisplay, cursorId); 
 	XDefineCursor(pData->xDisplay, pData->xWindow, cursor);
 
 	XSync(pData->xDisplay, False);
