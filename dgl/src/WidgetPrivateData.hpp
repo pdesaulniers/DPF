@@ -34,6 +34,8 @@ struct Widget::PrivateData {
     std::vector<Widget*> subWidgets;
 
     uint id;
+    int focusedWidgetId; //fork
+
     bool needsFullViewport;
     bool needsScaling;
     bool skipDisplay;
@@ -46,6 +48,7 @@ struct Widget::PrivateData {
           size(0, 0),
           subWidgets(),
           id(0),
+          focusedWidgetId(kNoWidgetFocusedId), //fork
           needsFullViewport(false),
           needsScaling(false),
           skipDisplay(false),

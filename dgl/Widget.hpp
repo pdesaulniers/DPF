@@ -320,6 +320,9 @@ public:
       @see getId
     */
     void setId(uint id) noexcept;
+    
+    static const int kNoWidgetFocusedId = -99999;
+    int* getFocusedWidgetIdPtr() noexcept;
 
 protected:
    /**
