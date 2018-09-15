@@ -106,14 +106,17 @@ endif
 ifneq ($(shell pkg-config --exists x11 && echo true),true)
 $(error X11 missing, cannot continue)
 endif
+ifneq ($(shell pkg-config --exists freetype2 && echo true),true)
+$(error freetype2 missing, cannot continue)
+endif
 endif
 
 # --------------------------------------------------------------
 # Set libs stuff
 
 ifeq ($(LINUX),true)
-DGL_FLAGS = $(shell pkg-config --cflags gl x11)
-DGL_LIBS  = $(shell pkg-config --libs gl x11)
+DGL_FLAGS = $(shell pkg-config --cflags gl x11 freetype2)
+DGL_LIBS  = $(shell pkg-config --libs gl x11 freetype2)
 endif
 
 ifeq ($(MACOS),true)
