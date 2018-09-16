@@ -1487,6 +1487,11 @@ void Window::hideFromTaskbar()
 	Atom atom = XInternAtom(pData->xDisplay, "_NET_WM_STATE_SKIP_TASKBAR", False);
 
 	XChangeProperty(pData->xDisplay, pData->xWindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&atom, 1);
+
+    XSetWindowAttributes attributes;
+	attributes.override_redirect = true;
+	XChangeWindowAttributes(pData->xDisplay, pData->xWindow, CWOverrideRedirect, &attributes);
+
 #elif defined(DISTRHO_OS_WINDOWS)	
 	SetWindowLong(pData->hwnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_APPWINDOW);
 #endif
@@ -1520,7 +1525,7 @@ void Window::setBorderless(bool borderless)
 	hints.decorations = borderless ? 0 : 1;
 
 	XChangeProperty(pData->xDisplay, pData->xWindow, mwmHintsProperty, mwmHintsProperty, 32, PropModeReplace, (unsigned char *)&hints, 5);
-
+	
 #elif defined(DISTRHO_OS_WINDOWS)	
 	LONG lStyle = GetWindowLong(pData->hwnd, GWL_STYLE);
 	lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
