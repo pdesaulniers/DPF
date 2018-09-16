@@ -164,6 +164,8 @@ struct Window::PrivateData
 		  fWidgets(),
 		  fModal(),
 		  fCursorIsClipped(false),
+		  fIsFullscreen(false),
+		  fPreFullscreenSize(Size<uint>(0,0)),
 #if defined(DISTRHO_OS_WINDOWS)
 		  hwnd(0)
 #elif defined(DISTRHO_OS_MAC)
@@ -1017,6 +1019,8 @@ struct Window::PrivateData
 	//fork---------
 	bool fCursorIsClipped;
 	bool fMustSaveSize;
+	bool fIsFullscreen;
+	Size<uint> fPreFullscreenSize;
 	//-------------
 
 	struct Modal
@@ -1522,6 +1526,37 @@ void Window::setBorderless(bool borderless)
 	lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
 	SetWindowLong(pData->hwnd, GWL_STYLE, lStyle);
 #endif
+}
+
+void Window::toggleFullscreen()
+{
+#if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
+	XUnmapWindow(pData->xDisplay, pData->xWindow);
+	XSync(pData->xDisplay, False);
+
+	Atom atoms[2] = { XInternAtom(pData->xDisplay, "_NET_WM_STATE_FULLSCREEN", False), None };
+	XChangeProperty(pData->xDisplay, pData->xWindow, XInternAtom(pData->xDisplay, "_NET_WM_STATE", False), XA_ATOM, 32, PropModeReplace, (unsigned char *)atoms, 1);
+	XSync(pData->xDisplay, False);
+
+	XMapWindow(pData->xDisplay, pData->xWindow);
+	XSync(pData->xDisplay, False);
+
+	int screen = 0;
+
+	if(!pData->fIsFullscreen)
+	{
+		pData->fPreFullscreenSize = getSize();
+		setSize(XWidthOfScreen(XScreenOfDisplay(pData->xDisplay, screen)), XHeightOfScreen(XScreenOfDisplay(pData->xDisplay, screen)));
+	}
+	else
+	{
+		setSize(pData->fPreFullscreenSize);
+	}
+	
+#endif
+
+	saveSizeAtExit(false); //to make sure the default window size won't be as big as the monitor 
+	pData->fIsFullscreen = !pData->fIsFullscreen;
 }
 
 void Window::saveSizeAtExit(bool yesno)

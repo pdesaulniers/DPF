@@ -122,6 +122,7 @@ public:
 
     void setBorderless(bool borderless);
     void hideFromTaskbar();
+    void toggleFullscreen();
 
     void saveSizeAtExit(bool yesno);
     bool mustSaveSize();
@@ -192,7 +193,7 @@ public:
     friend class Widget;
     friend class StandaloneWindow;
     friend class DISTRHO_NAMESPACE::UIExporter;
-
+  
     virtual void _addWidget(Widget *const widget);
     virtual void _removeWidget(Widget *const widget);
     void _idle();
