@@ -166,6 +166,7 @@ struct Window::PrivateData
 		  fCursorIsClipped(false),
 		  fIsFullscreen(false),
 		  fPreFullscreenSize(Size<uint>(0,0)),
+		  fIsContextMenu(false),
 #if defined(DISTRHO_OS_WINDOWS)
 		  hwnd(0)
 #elif defined(DISTRHO_OS_MAC)
@@ -818,6 +819,11 @@ struct Window::PrivateData
 			if (widget->isVisible() && widget->onMouse(ev))
 				break;
 		}
+
+		if (fIsContextMenu && ev.press)
+		{
+			close();
+		}
 	}
 
 	void onPuglMotion(const int x, const int y)
@@ -1021,6 +1027,7 @@ struct Window::PrivateData
 	bool fMustSaveSize;
 	bool fIsFullscreen;
 	Size<uint> fPreFullscreenSize;
+	bool fIsContextMenu;
 	//-------------
 
 	struct Modal
@@ -1416,6 +1423,7 @@ void Window::onReshape(uint width, uint height)
 
 void Window::onFocusOut()
 {
+
 }
 
 void Window::onClose()
@@ -1480,6 +1488,7 @@ void Window::setAbsolutePos(const uint x, const uint y)
 #endif
 }
 
+//TODO: proper "ContextWindow" class, or similar
 void Window::hideFromTaskbar()
 {
 #if !defined(DISTRHO_OS_WINDOWS) && !defined(DISTRHO_OS_MAC)
@@ -1488,13 +1497,16 @@ void Window::hideFromTaskbar()
 
 	XChangeProperty(pData->xDisplay, pData->xWindow, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&atom, 1);
 
-    XSetWindowAttributes attributes;
+	XSetWindowAttributes attributes;
 	attributes.override_redirect = true;
 	XChangeWindowAttributes(pData->xDisplay, pData->xWindow, CWOverrideRedirect, &attributes);
-
+	XGrabPointer(pData->xDisplay, pData->xWindow, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	
 #elif defined(DISTRHO_OS_WINDOWS)	
 	SetWindowLong(pData->hwnd, GWL_EXSTYLE, WS_EX_TOOLWINDOW | WS_EX_APPWINDOW);
 #endif
+
+	pData->fIsContextMenu = true;
 }
 
 void Window::setBorderless(bool borderless)
