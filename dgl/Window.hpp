@@ -28,6 +28,15 @@ END_NAMESPACE_DISTRHO
 START_NAMESPACE_DGL
 
 // -----------------------------------------------------------------------
+enum CursorStyle
+{
+    Default = 0,
+    Pointer,
+    Grab,
+    Text,
+    UpDown,
+    SouthEastResize
+};
 
 class Application;
 class Widget;
@@ -114,6 +123,7 @@ public:
 
     void addIdleCallback(IdleCallback* const callback);
     void removeIdleCallback(IdleCallback* const callback);
+    void setCursorStyle(CursorStyle style) noexcept;
 
 protected:
     virtual void onDisplayBefore();

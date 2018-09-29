@@ -41,6 +41,7 @@
 #else
 # include <sys/types.h>
 # include <unistd.h>
+# include <X11/cursorfont.h>
 extern "C" {
 # include "pugl/pugl_x11.c"
 }
@@ -1348,6 +1349,92 @@ void Window::onReshape(uint width, uint height)
 
 void Window::onClose()
 {
+}
+
+void Window::setCursorStyle(CursorStyle style) noexcept
+{
+#if defined(DISTRHO_OS_WINDOWS)
+	LPCSTR cursorName;
+
+	switch (style)
+	{
+	case CursorStyle::Default:
+		cursorName = IDC_ARROW;
+		break;
+	case CursorStyle::Grab:
+		cursorName = IDC_HAND;
+		break;
+	case CursorStyle::Pointer:
+		cursorName = IDC_HAND;
+		break;
+	case CursorStyle::SouthEastResize:
+		cursorName = IDC_SIZENWSE;
+		break;
+	case CursorStyle::UpDown:
+		cursorName = IDC_SIZENS;
+		break;
+	default:
+		cursorName = IDC_ARROW;
+		break;
+	}
+	
+	HCURSOR cursor = LoadCursor(NULL, cursorName);
+	SetCursor(cursor);
+
+#elif defined(DISTRHO_OS_MAC)
+
+	switch (style)
+	{
+	case CursorStyle::Default:
+		[[NSCursor arrow] set];
+		break;
+	case CursorStyle::Grab:
+		[[NSCursor openHand] set];
+		break;
+	case CursorStyle::Pointer:
+		[[NSCursor pointingHand] set];
+		break;
+	case CursorStyle::SouthEastResize:
+		[[NSCursor _windowResizeNorthWestSouthEastCursor] set];
+		break;
+	case CursorStyle::UpDown:
+		[[NSCursor resizeUpDown] set];
+		break;
+	default:
+		[[NSCursor arrow] set];
+		break;
+	}
+
+#else
+	uint cursorId;
+
+	switch (style)
+	{
+	case CursorStyle::Default:
+		cursorId = XC_arrow;
+		break;
+	case CursorStyle::Grab:
+		cursorId = XC_hand2;
+		break;
+	case CursorStyle::Pointer:
+		cursorId = XC_hand2;
+		break;
+	case CursorStyle::SouthEastResize:
+		cursorId = XC_bottom_right_corner;
+		break;
+	case CursorStyle::UpDown:
+		cursorId = XC_sb_v_double_arrow;
+		break;
+	default:
+		cursorId = XC_arrow;
+		break;
+	}
+
+	Cursor cursor = XCreateFontCursor(pData->xDisplay, cursorId);
+	XDefineCursor(pData->xDisplay, pData->xWindow, cursor);
+
+	XSync(pData->xDisplay, False);
+#endif
 }
 
 #ifndef DGL_FILE_BROWSER_DISABLED
