@@ -129,13 +129,12 @@ public:
     
     enum CursorStyle
     {
-	    Default,
+	    Default = 0,
 	    Pointer,
 	    Grab,
-	    Grabbing,
       Text,
       UpDown,
-	    NW_SE_Resize
+	    SouthEastResize
     };
     
     /**
