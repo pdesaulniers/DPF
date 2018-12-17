@@ -184,10 +184,18 @@ void Widget::setAbsolutePos(int x, int y) noexcept
 
 void Widget::setAbsolutePos(const Point<int>& pos) noexcept
 {
+
     if (pData->absolutePos == pos)
         return;
 
+    PositionChangedEvent ev;
+    ev.oldPos = pData->absolutePos;
+    ev.pos = pos;
+
     pData->absolutePos = pos;
+
+    onPositionChanged(ev);
+
     pData->parent.repaint();
 }
 
@@ -257,6 +265,10 @@ bool Widget::onScroll(const ScrollEvent&)
 }
 
 void Widget::onResize(const ResizeEvent&)
+{
+}
+
+void Widget::onPositionChanged(const PositionChangedEvent&)
 {
 }
 
