@@ -491,11 +491,6 @@ dispatchKey(PuglView* view, XEvent* event, bool press)
 	PuglKey   special;
 	const int n = XLookupString(&event->xkey, str, 4, &sym, NULL);
 
-	if (sym == XK_Escape && view->closeFunc && !press && !view->parent) {
-		view->closeFunc(view);
-		view->redisplay = false;
-		return;
-	}
 	if (n == 0 && sym == 0) {
 		goto send_event;
 		return;
