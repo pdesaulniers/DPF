@@ -234,7 +234,7 @@ void Widget::setId(uint id) noexcept
     pData->id = id;
 }
 
-int* Widget::getFocusedWidgetIdPtr() noexcept //fork
+uint* Widget::getFocusedWidgetIdPtr() noexcept //fork
 {
     return &pData->focusedWidgetId;
 }

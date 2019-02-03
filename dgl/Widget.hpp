@@ -336,8 +336,8 @@ public:
     */
     void setId(uint id) noexcept;
     
-    static const int kNoWidgetFocusedId = -99999;
-    int* getFocusedWidgetIdPtr() noexcept;
+    static const uint kNoWidgetFocusedId = 99999;
+    uint* getFocusedWidgetIdPtr() noexcept;
 
 protected:
    /**
