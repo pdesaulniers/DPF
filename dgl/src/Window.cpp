@@ -332,7 +332,8 @@ struct Window::PrivateData
 	void close()
 	{
 		DBG("Window close\n");
-
+		fSelf->onClose();
+		
 		if (fUsingEmbed)
 			return;
 
