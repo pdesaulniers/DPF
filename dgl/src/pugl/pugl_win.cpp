@@ -306,7 +306,7 @@ setModifiers(PuglView* view)
 }
 
 static unsigned 
-scancodeToHID(unsigned scancode)  
+keycodeToHID(unsigned keycode)
 {
 	const unsigned char KEYCODE_WINDOWS_TO_HID[256] = {
     0,41,30,31,32,33,34,35,36,37,38,39,45,46,42,43,20,26,8,21,23,28,24,12,18,19,
@@ -319,10 +319,10 @@ scancodeToHID(unsigned scancode)
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	};
 
-  if (scancode >= 256)
+  if (keycode >= 256)
     return 0;
 			
-  return KEYCODE_WINDOWS_TO_HID[scancode];
+  return KEYCODE_WINDOWS_TO_HID[keycode];
 }
 
 static LRESULT
@@ -416,7 +416,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 				UINT scanCode = (lParam >> 8) & 0xFFFFFF00;
 				
 				if ( 1 == ToAscii(wParam, scanCode, kbs, (LPWORD)lb, 0)) {
-					view->keyboardFunc(view, message == WM_KEYDOWN, (char)lb[0], scancodeToHID(keyCode));
+					view->keyboardFunc(view, message == WM_KEYDOWN, (char)lb[0], keycodeToHID(keyCode));
 				}
 			}
 		}
