@@ -264,7 +264,7 @@ protected:
         std::memcpy(atomBuf + sizeof(LV2_Atom), tmpStr.buffer(), msgSize);
 
         // send to DSP side
-        fWriteFunction(fController, eventInPortIndex, atomSize, fEventTransferURID, atom);
+        fWriteFunction(fController, eventInPortIndex, sizeof(LV2_Atom_MidiEvent), fEventTransferURID, atom);
     }
 
 #if DISTRHO_PLUGIN_WANT_MIDI_INPUT
@@ -286,7 +286,7 @@ protected:
         atomMidiEvent.data[2] = velocity;
 
         // send to DSP side
-        fWriteFunction(fController, eventInPortIndex, sizeof(LV2_Atom_MidiEvent), fEventTransferURID, &atomMidiEvent);
+        fWriteFunction(fController, eventInPortIndex, lv2_atom_total_size(&atomMidiEvent.atom), fEventTransferURID, &atomMidiEvent);
     }
 #endif
 

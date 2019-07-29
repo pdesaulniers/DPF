@@ -398,7 +398,7 @@ getFixedAppKitButton(NSInteger button)
 {
 	if (puglview->keyboardFunc && !(puglview->ignoreKeyRepeat && [event isARepeat])) {
 		NSString* chars = [event characters];
-		unsigned keycode = scancodeToHID([event keycode]);
+		unsigned keycode = scancodeToHID([event keyCode]);
 		puglview->mods = getModifiers(puglview, event);
 		puglview->keyboardFunc(puglview, true, [chars characterAtIndex:0], keycode);
 	}
@@ -408,7 +408,7 @@ getFixedAppKitButton(NSInteger button)
 {
 	if (puglview->keyboardFunc) {
 		NSString* chars = [event characters];
-		unsigned keycode = scancodeToHID([event keycode]);
+		unsigned keycode = scancodeToHID([event keyCode]);
 		puglview->mods = getModifiers(puglview, event);
 		puglview->keyboardFunc(puglview, false,  [chars characterAtIndex:0], keycode);
 	}
