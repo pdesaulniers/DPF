@@ -934,7 +934,7 @@ void NanoVG::loadSharedResources()
 
     using namespace dpf_resources;
 
-    nvgCreateFontMem(fContext, NANOVG_DEJAVU_SANS_TTF, (const uchar*)dejavusans_ttf, dejavusans_ttf_size, 0);
+    createFontFromMemory(NANOVG_DEJAVU_SANS_TTF, (const uchar*)dejavusans_ttf, dejavusans_ttf_size, 0);
 }
 #endif
 
