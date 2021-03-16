@@ -628,8 +628,8 @@ puglProcessEvents(PuglView* view)
 	/* Maintain a single expose/configure event to execute after all pending
 	   events.  This avoids redundant drawing/configuration which prevents a
 	   series of window resizes in the same loop from being laggy. */
-	PuglEvent expose_event = { 0 };
-	PuglEvent config_event = { 0 };
+	PuglEvent expose_event = { PUGL_NOTHING };
+	PuglEvent config_event = { PUGL_NOTHING };
 	XEvent    xevent;
 
 	while (XPending(view->impl->display) > 0) {
